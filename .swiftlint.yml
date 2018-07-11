@@ -1,0 +1,42 @@
+disabled_rules: # rule identifiers to exclude from running
+#- colon
+#- comma
+#- control_statement
+#- opening_brace
+- line_length
+- trailing_whitespace
+#- statement_position
+#- objc_subclassing_restricted
+#- vertical_whitespace
+- todo
+- trailing_semicolon
+#- function_body_length
+#- switch_case_alignment
+#- return_arrow_whitespace
+- mark
+#- unneeded_break_in_switch
+#- redundant_optional_initialization
+#- for_where
+#- trailing_newline
+#- file_length
+#- multiple_closures_with_trailing_closure
+#- unused_closure_parameter
+#- weak_delegate
+- function_parameter_count
+# errors
+#- force_cast
+- type_body_length
+#- shorthand_operator
+#- identifier_name
+#- cyclomatic_complexity
+#- type_name
+#- notification_center_detachment
+#- discarded_notification_center_observer
+opt_in_rules: # some rules are only opt-in
+# - force_unwrapping
+# - empty_count
+excluded: # paths to ignore during linting. Takes precedence over `included`.
+# - Carthage
+# Find all the available rules by running:
+# swiftlint rules
+
