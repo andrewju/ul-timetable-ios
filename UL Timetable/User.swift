@@ -42,8 +42,9 @@ class User: NSObject, NSCoding {
         if let userId = aDecoder.decodeObject(forKey: PropertyKey.idKey) as? String,
             let role = aDecoder.decodeObject(forKey: PropertyKey.roleKey) as? String {
             self.init(role: role, userId: userId)
+        } else {
+            return nil
         }
-        return nil
     }
     
 }

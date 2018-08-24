@@ -6,8 +6,37 @@
 
 import UIKit
 import EventKit
+class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return userRoles.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return userRoles[row]
+    }
+    
+    @objc func doneClick() {
+        self.userRolesTextField.text = userRoles[userRoleInput.selectedRow(inComponent: 0)]
+        userRole = userRoles[userRoleInput.selectedRow(inComponent: 0)].uppercased()
+        userRolesTextField.resignFirstResponder()
+        self.userRolesTableViewCell.isSelected = false
+        self.userID.resignFirstResponder()
+        
+        self.userID.text = ""
+        self.userID.keyboardType = (userRole == "STUDENT" ? .numberPad: .default)
+        self.userID.becomeFirstResponder()
+    }
+    
+    @objc func cancelClick() {
+        userRolesTextField.resignFirstResponder()
+        self.userRolesTableViewCell.isSelected = false
 
-class HomeTableViewController: UITableViewController, UITextFieldDelegate {
+    }
     
     // MARK: Properties
     var userId: String = ""
@@ -16,11 +45,66 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate {
     let eventStore = EKEventStore()
     let dateMakerFormatter = DateFormatter()
     
+    let userRoles = ["STUDENT", "STAFF"]
+    
+    var userRoleInput: UIPickerView!
+    @IBOutlet weak var progressView: UIActivityIndicatorView!
     @IBOutlet weak var addBarButton: UIBarButtonItem!
     @IBOutlet weak var statusTableViewCell: UITableViewCell!
-    @IBOutlet weak var studentTableViewCell: UITableViewCell!
-    @IBOutlet weak var staffTableViewCell: UITableViewCell!
+    @IBOutlet weak var userRolesTableViewCell: UITableViewCell!
+    @IBOutlet weak var userIDTableViewCell: UITableViewCell!
     @IBOutlet weak var userID: UITextField!
+    @IBOutlet weak var userRolesTextField: UITextField!
+    @IBOutlet weak var noticeLabel: UILabel!
+    @IBAction func tappedNoticeLabel(_ sender: Any) {
+        
+        if let config = AppDelegate.getRemoteConfig() {
+            let actionType = config.getNumber(ULRemoteConfigurationKey.serviceNoticeType.rawValue)
+            if actionType == 1 || actionType == 3 {
+                // Open URL
+                let actionLink = config.getString(ULRemoteConfigurationKey.serviceNoticeAction.rawValue)
+                guard let url = URL(string: actionLink!) else {
+                    return //be safe
+                }
+                
+                if #available(iOS 10.0, *) {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                } else {
+                    UIApplication.shared.openURL(url)
+                }
+            }
+        }
+    }
+    
+    func tappedUserRoles() {
+        // UIPickerView
+        self.userRoleInput = UIPickerView(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: 216))
+        self.userRoleInput.delegate = self
+        self.userRoleInput.dataSource = self
+        
+        let index = userRoles.index(of: userRole)
+        self.userRoleInput.selectRow(index!, inComponent: 0, animated: false)
+        self.userRoleInput.backgroundColor = UIColor.white
+        userRolesTextField.inputView = self.userRoleInput
+        
+        // ToolBar
+        let toolBar = UIToolbar()
+        toolBar.barStyle = .default
+        toolBar.isTranslucent = true
+        toolBar.tintColor = UIColor(red: 92/255, green: 216/255, blue: 255/255, alpha: 1)
+        toolBar.sizeToFit()
+        
+        // Adding Button ToolBar
+        let doneButton = UIBarButtonItem.init(barButtonSystemItem: .done,
+                                              target: self,
+                                              action: #selector(self.doneClick))
+        
+        let spaceButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelClick))
+        toolBar.setItems([cancelButton, spaceButton, doneButton], animated: false)
+        toolBar.isUserInteractionEnabled = true
+        userRolesTextField.inputAccessoryView = toolBar
+    }
     
     func request(requestURL: URL, completion: @escaping (Data?, URLResponse?, Error?) -> Swift.Void) {
         var request = URLRequest(url: requestURL)
@@ -63,7 +147,9 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate {
                                     let eventCode = result["type"] as? String,
                                     let eventDay = result["day"] as? Int {
                                     for item in eventSequence.components(separatedBy: ",") {
-                                        _ = self.addEventToCalendar(eventTitle, code: eventCode, sequence: item, location: eventLocation, time: eventTime, day: eventDay)
+                                        DispatchQueue.main.async {
+                                            _ = self.addEventToCalendar(eventTitle, code: eventCode, sequence: item, location: eventLocation, time: eventTime, day: eventDay)
+                                        }
                                     }
                                 }
                             }
@@ -110,7 +196,6 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate {
         event.calendar = eventStore.defaultCalendarForNewEvents
         
         dateMakerFormatter.dateFormat = "yyyyMMdd'T'HHmm"
-        print(config.semesterStartDate)
         var startDate: Date? = dateMakerFormatter.date(from: config.semesterStartDate+formatTime(time: time.components(separatedBy: "-")[0]))
         var endDate: Date? = dateMakerFormatter.date(from: config.semesterStartDate+formatTime(time: time.components(separatedBy: "-")[1]))
         startDate = startDate?.addingTimeInterval(3600.0*24*(Double(day)-1))
@@ -219,6 +304,7 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         if let savedUser = loadUserInfo() {
             userId = savedUser.userId
             userRole = savedUser.role
@@ -231,13 +317,34 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate {
             statusTableViewCell.textLabel?.text = "Not added yet"
         }
         
-        studentTableViewCell.isSelected = (userRole == "STUDENT" ? true: false)
-        studentTableViewCell.accessoryType = (userRole == "STUDENT" ? .checkmark: .none)
-        staffTableViewCell.isSelected = (userRole == "STUDENT" ? false: true)
-        staffTableViewCell.accessoryType = (userRole == "STUDENT" ? .none: .checkmark)
-        
         userID.delegate = self
         userID.text = userId
+        
+        userRolesTextField.delegate = self
+        userRolesTextField.text = userRole
+        
+        if let config = AppDelegate.getRemoteConfig() {
+            noticeLabel.text = config.getString(ULRemoteConfigurationKey.serviceNoticeMessage.rawValue)
+            
+            let actionType = config.getNumber(ULRemoteConfigurationKey.serviceNoticeType.rawValue)
+            if actionType == 1 {
+                // Open URL
+                addBarButton.isEnabled = true
+                noticeLabel.backgroundColor = UIColor.init(red: 57/255.0, green: 156/255.0, blue: 230/255.0, alpha: 1.0)
+                
+                userRolesTableViewCell.isUserInteractionEnabled = true
+                userIDTableViewCell.isUserInteractionEnabled = true
+                
+            } else if actionType == 2 || actionType == 3 {
+                // Disable Button
+                addBarButton.isEnabled = false
+                noticeLabel.backgroundColor = UIColor.gray
+                
+                userRolesTableViewCell.isUserInteractionEnabled = false
+                userIDTableViewCell.isUserInteractionEnabled = false
+
+            }
+        }
         
         //Add "DONE" button to the keyboard
         let toolbar = UIToolbar()
@@ -252,6 +359,7 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate {
     }
     
     @IBAction func addButton(_ sender: UIBarButtonItem) {
+        progressView.startAnimating()
         addBarButton.isEnabled = false
         addTimetable()
     }
@@ -279,6 +387,7 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate {
             typeDescription = "Unknown error happened."
         }
         
+        self.progressView.stopAnimating()
         let alertController = UIAlertController(title: "Message", message: typeDescription, preferredStyle: .alert)
         let OKAction = UIAlertAction(title: "OK", style: .default) { (_) in }
         alertController.addAction(OKAction)
@@ -297,41 +406,52 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate {
     }
     
     func checkData() -> Bool {
-        if userID.hasText == false || (userID.text?.count)! < 7 {
+        if userID.hasText == false || (userID.text?.count)! < 7 || (userID.text?.count)! > 9 {
             return false
         }
-        return true
-    }
-    
-    // MARK: - Table view data source
-    
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.section == 1 {
-            self.userID.resignFirstResponder()
-            userRole = (indexPath.row == 0 ? "STUDENT": "STAFF")
-            studentTableViewCell.accessoryType = (indexPath.row == 0 ? .checkmark: .none)
-            staffTableViewCell.accessoryType = (indexPath.row == 0 ? .none: .checkmark)
-            
-            self.userID.text = ""
-            self.userID.keyboardType = (indexPath.row == 0 ? .numberPad: .default)
-            self.userID.becomeFirstResponder()
+        if userRole == "STUDENT" {
+            if let value = userID.text {
+                // swiftlint:disable:next force_try
+                let regex = try! NSRegularExpression(pattern: "^[0-9]+$", options: [])
+                // swiftlint:disable:next legacy_constructor
+                let isMatch = regex.firstMatch(in: value, options: [], range: NSMakeRange(0, value.utf16.count)) != nil
+                
+                return isMatch
+            }
+            return false
+        } else {
+            if let value = userID.text {
+                // swiftlint:disable:next force_try
+                let regex = try! NSRegularExpression(pattern: "^[a-z]+[0-9]{1}$", options: [])
+                // swiftlint:disable:next legacy_constructor
+                let isMatch = regex.firstMatch(in: value, options: [], range: NSMakeRange(0, value.utf16.count)) != nil
+                
+                return isMatch
+            }
+            return false
         }
     }
     
     // MARK: UITextFieldDelegate
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        addBarButton.isEnabled = false
-        textField.keyboardType = (userRole == "STUDENT" ? UIKeyboardType.numberPad: UIKeyboardType.default)
-        textField.becomeFirstResponder()
-        
+        if textField === userRolesTextField {
+            tappedUserRoles()
+        } else {
+            addBarButton.isEnabled = false
+            textField.keyboardType = (userRolesTextField.text?.uppercased() == "STUDENT" ? UIKeyboardType.numberPad: UIKeyboardType.default)
+            textField.becomeFirstResponder()
+        }
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
-        textField.resignFirstResponder()
-        userId = textField.text!
-        addBarButton.isEnabled = checkData()
-        
+        if textField === userRolesTextField {
+            
+        } else {
+            textField.resignFirstResponder()
+            userId = textField.text!
+            addBarButton.isEnabled = checkData()
+        }
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {

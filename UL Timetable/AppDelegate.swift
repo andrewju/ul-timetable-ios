@@ -15,6 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var serverResponse: Int?
     var serverVersion: Int?
     let outOfDateMessage = "Your app version is out-of-date!\nPlease update to the latest version from App Store.!"
+    let errorMsg = "Please try again later."
     
     var remoteConfig: ULConfiguration?
     
@@ -58,10 +59,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: {(_: UIAlertAction) in Thread.sleep(forTimeInterval: 0.5); exit(0)}))
                                 self.window?.rootViewController?.present(alert, animated: true, completion: nil)
                             }
+                        } else {
+                            DispatchQueue.main.async {
+                                let mainStoryBoard = UIStoryboard.init(name: "Main", bundle: nil)
+                                if let mainVC = mainStoryBoard.instantiateInitialViewController() {
+                                    self.window?.rootViewController?.present(mainVC, animated: false, completion: nil)
+                                }
+                            }
                         }
                     }
                 } else {
                     // more error handling
+                    let alert = UIAlertController(title: nil, message: self.errorMsg, preferredStyle: UIAlertControllerStyle.alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: {(_: UIAlertAction) in Thread.sleep(forTimeInterval: 0.5); exit(0)}))
+                    self.window?.rootViewController?.present(alert, animated: true, completion: nil)
                 }
             }
             self.remoteConfig = config

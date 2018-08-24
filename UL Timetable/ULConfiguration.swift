@@ -10,12 +10,14 @@ import FirebaseCore
 import FirebaseRemoteConfig
 
 enum ULRemoteConfigurationKey: String {
+    case serviceNoticeMessage = "service_notice_message"
+    case serviceNoticeType = "service_notice_type"
+    case serviceNoticeAction = "service_notice_action"
     case serverHost = "server_prefix"
+    case appStoreVersion = "app_store_version"
     case miniAppVersion = "minimal_version_ipa"
-    case examFeature = "show_class_tab"
     case semesterStartDate = "semester_start_date"
     case serviceTimeTable = "service_name_time_table"
-    case serviceBlockMessage = "service_name_block_message" // text to display, string
 }
 
 enum PushCommandKey: String {

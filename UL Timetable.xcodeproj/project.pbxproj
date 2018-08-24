@@ -11,9 +11,9 @@
 		490003EF1D58BBB5008639E7 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490003EE1D58BBB5008639E7 /* User.swift */; };
 		4901AEC71D64EFD900BE2FE5 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4901AEC61D64EFD900BE2FE5 /* MainViewController.swift */; };
 		49203F261D4521C5006EC4D0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49203F251D4521C5006EC4D0 /* AppDelegate.swift */; };
-		49203F2B1D4521C5006EC4D0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 49203F291D4521C5006EC4D0 /* Main.storyboard */; };
 		49203F2D1D4521C5006EC4D0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 49203F2C1D4521C5006EC4D0 /* Assets.xcassets */; };
 		49203F301D4521C5006EC4D0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 49203F2E1D4521C5006EC4D0 /* LaunchScreen.storyboard */; };
+		492DADE7212E015A00EBE1E7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 492DADE6212E015A00EBE1E7 /* Main.storyboard */; };
 		D247FF2D20CAECEB0013F5BF /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D247FF2C20CAECEB0013F5BF /* GoogleService-Info.plist */; };
 		D285669720DC365D00C5E211 /* ULRemoteConfDefaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = D285669620DC365D00C5E211 /* ULRemoteConfDefaults.plist */; };
 		D285669920DC371000C5E211 /* ULConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D285669820DC371000C5E211 /* ULConfiguration.swift */; };
@@ -25,10 +25,10 @@
 		4901AEC61D64EFD900BE2FE5 /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		49203F221D4521C5006EC4D0 /* UL Timetable.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "UL Timetable.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		49203F251D4521C5006EC4D0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		49203F2A1D4521C5006EC4D0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		49203F2C1D4521C5006EC4D0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		49203F2F1D4521C5006EC4D0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		49203F311D4521C5006EC4D0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		492DADE6212E015A00EBE1E7 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		C10346ACF3E2CBFD8F6A573F /* Pods-UL Timetable.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UL Timetable.release.xcconfig"; path = "Pods/Target Support Files/Pods-UL Timetable/Pods-UL Timetable.release.xcconfig"; sourceTree = "<group>"; };
 		D247FF2C20CAECEB0013F5BF /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D285669620DC365D00C5E211 /* ULRemoteConfDefaults.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ULRemoteConfDefaults.plist; sourceTree = "<group>"; };
@@ -81,10 +81,10 @@
 				49203F251D4521C5006EC4D0 /* AppDelegate.swift */,
 				490003EE1D58BBB5008639E7 /* User.swift */,
 				4901AEC61D64EFD900BE2FE5 /* MainViewController.swift */,
-				49203F291D4521C5006EC4D0 /* Main.storyboard */,
 				49203F2C1D4521C5006EC4D0 /* Assets.xcassets */,
 				49203F2E1D4521C5006EC4D0 /* LaunchScreen.storyboard */,
 				49203F311D4521C5006EC4D0 /* Info.plist */,
+				492DADE6212E015A00EBE1E7 /* Main.storyboard */,
 				D285669620DC365D00C5E211 /* ULRemoteConfDefaults.plist */,
 				D285669820DC371000C5E211 /* ULConfiguration.swift */,
 			);
@@ -166,10 +166,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				49203F301D4521C5006EC4D0 /* LaunchScreen.storyboard in Resources */,
+				492DADE7212E015A00EBE1E7 /* Main.storyboard in Resources */,
 				D285669720DC365D00C5E211 /* ULRemoteConfDefaults.plist in Resources */,
 				D247FF2D20CAECEB0013F5BF /* GoogleService-Info.plist in Resources */,
 				49203F2D1D4521C5006EC4D0 /* Assets.xcassets in Resources */,
-				49203F2B1D4521C5006EC4D0 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -211,6 +211,7 @@
 			);
 			inputPaths = (
 				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
@@ -227,13 +228,13 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-UL Timetable/Pods-UL Timetable-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 			);
@@ -259,14 +260,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		49203F291D4521C5006EC4D0 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				49203F2A1D4521C5006EC4D0 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		49203F2E1D4521C5006EC4D0 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (

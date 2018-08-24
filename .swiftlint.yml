@@ -4,6 +4,7 @@ disabled_rules: # rule identifiers to exclude from running
 #- control_statement
 #- opening_brace
 - line_length
+- file_length
 - trailing_whitespace
 #- statement_position
 #- objc_subclassing_restricted
