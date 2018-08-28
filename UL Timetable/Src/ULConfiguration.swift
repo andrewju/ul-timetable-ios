@@ -10,6 +10,7 @@ import FirebaseCore
 import FirebaseRemoteConfig
 
 enum ULRemoteConfigurationKey: String {
+    case serviceIPAURL = "service_ipa_url"
     case serviceNoticeMessage = "service_notice_message"
     case serviceNoticeType = "service_notice_type"
     case serviceNoticeAction = "service_notice_action"
@@ -82,11 +83,11 @@ class ULConfiguration: NSObject {
     }
     
     var semesterStartDate: String {
-        return getString(ULRemoteConfigurationKey.semesterStartDate.rawValue) ?? "20180618T"
+        return getString(ULRemoteConfigurationKey.semesterStartDate.rawValue) ?? "20180910T"
     }
     
     var serverHost: String {
-        return getString(ULRemoteConfigurationKey.serverHost.rawValue) ?? "35.197.202.71"
+        return getString(ULRemoteConfigurationKey.serverHost.rawValue) ?? "35.189.65.75"
     }
     
     func getServiceName(_ key: String, defaultValue: String) -> String {

@@ -2,13 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>service_ipa_url</key>
+	<string>https://itunes.apple.com/ie/app/ul-timetable/id1147306467?mt=8</string>
 	<key>semester_start_date</key>
-	<string>20180618T</string>
+	<string>20180910T</string>
 	<key>service_name_time_table</key>
-	<string>id-timetable</string>
-	<key>minimal_version</key>
+	<string>id-timetable-v2.php</string>
+	<key>minimal_version_ipa</key>
 	<integer>5</integer>
 	<key>server_prefix</key>
-	<string>35.197.202.71</string>
+	<string>35.189.65.75</string>
 </dict>
 </plist>

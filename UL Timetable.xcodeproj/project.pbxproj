@@ -56,6 +56,26 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		491170A4213581CC003CC400 /* Src */ = {
+			isa = PBXGroup;
+			children = (
+				49203F251D4521C5006EC4D0 /* AppDelegate.swift */,
+				490003EE1D58BBB5008639E7 /* User.swift */,
+				4901AEC61D64EFD900BE2FE5 /* MainViewController.swift */,
+				D285669820DC371000C5E211 /* ULConfiguration.swift */,
+			);
+			path = Src;
+			sourceTree = "<group>";
+		};
+		491170A5213581FC003CC400 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				492DADE6212E015A00EBE1E7 /* Main.storyboard */,
+				49203F2E1D4521C5006EC4D0 /* LaunchScreen.storyboard */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		49203F191D4521C5006EC4D0 = {
 			isa = PBXGroup;
 			children = (
@@ -78,15 +98,11 @@
 			isa = PBXGroup;
 			children = (
 				D247FF2C20CAECEB0013F5BF /* GoogleService-Info.plist */,
-				49203F251D4521C5006EC4D0 /* AppDelegate.swift */,
-				490003EE1D58BBB5008639E7 /* User.swift */,
-				4901AEC61D64EFD900BE2FE5 /* MainViewController.swift */,
-				49203F2C1D4521C5006EC4D0 /* Assets.xcassets */,
-				49203F2E1D4521C5006EC4D0 /* LaunchScreen.storyboard */,
 				49203F311D4521C5006EC4D0 /* Info.plist */,
-				492DADE6212E015A00EBE1E7 /* Main.storyboard */,
 				D285669620DC365D00C5E211 /* ULRemoteConfDefaults.plist */,
-				D285669820DC371000C5E211 /* ULConfiguration.swift */,
+				49203F2C1D4521C5006EC4D0 /* Assets.xcassets */,
+				491170A4213581CC003CC400 /* Src */,
+				491170A5213581FC003CC400 /* View */,
 			);
 			path = "UL Timetable";
 			sourceTree = "<group>";
@@ -385,7 +401,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = KJTFH4D46R;
 				INFOPLIST_FILE = "UL Timetable/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "ie.ul.andrew.UL-Timetable-App-iOS";
 				PRODUCT_NAME = "UL Timetable";
@@ -406,7 +422,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = KJTFH4D46R;
 				INFOPLIST_FILE = "UL Timetable/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "ie.ul.andrew.UL-Timetable-App-iOS";
 				PRODUCT_NAME = "UL Timetable";

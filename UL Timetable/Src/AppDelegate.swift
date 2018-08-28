@@ -11,10 +11,7 @@ import Firebase
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
-    var systemVersion: Int = 5
-    var serverResponse: Int?
-    var serverVersion: Int?
-    let outOfDateMessage = "Your app version is out-of-date!\nPlease update to the latest version from App Store.!"
+    let outOfDateMessage = "Your app version is out-of-date!\nPlease update to the latest version from App Store!"
     let errorMsg = "Please try again later."
     
     var remoteConfig: ULConfiguration?
@@ -51,19 +48,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if config.loadDefaultConfigs() {
             config.fetchRemoteConfigs(TimeInterval(5)) { (status, _ ) in
                 if status == .success {
-                    // more operations
                     if let miniVersion = config.getNumber(ULRemoteConfigurationKey.miniAppVersion.rawValue) {
-                        if miniVersion.intValue > self.systemVersion {
-                            DispatchQueue.main.async {
-                                let alert = UIAlertController(title: nil, message: self.outOfDateMessage, preferredStyle: UIAlertControllerStyle.alert)
-                                alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: {(_: UIAlertAction) in Thread.sleep(forTimeInterval: 0.5); exit(0)}))
-                                self.window?.rootViewController?.present(alert, animated: true, completion: nil)
-                            }
-                        } else {
-                            DispatchQueue.main.async {
-                                let mainStoryBoard = UIStoryboard.init(name: "Main", bundle: nil)
-                                if let mainVC = mainStoryBoard.instantiateInitialViewController() {
-                                    self.window?.rootViewController?.present(mainVC, animated: false, completion: nil)
+                        // fetch system version from .plist file
+                        let path = Bundle.main.path(forResource: "Info", ofType: "plist")
+                        let resultDic = NSMutableDictionary(contentsOfFile: path!)! as NSMutableDictionary
+                        if let sysVersion = resultDic.object(forKey: "systemVersion") as? Int {
+                            if miniVersion.intValue > sysVersion {
+                                DispatchQueue.main.async {
+                                    let alert = UIAlertController(title: nil, message: self.outOfDateMessage, preferredStyle: UIAlertControllerStyle.alert)
+                                    alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: {(_: UIAlertAction) in Thread.sleep(forTimeInterval: 0.5); exit(0)}))
+                                    self.window?.rootViewController?.present(alert, animated: true, completion: nil)
+                                }
+                            } else {
+                                DispatchQueue.main.async {
+                                    let mainStoryBoard = UIStoryboard.init(name: "Main", bundle: nil)
+                                    if let mainVC = mainStoryBoard.instantiateInitialViewController() {
+                                        self.window?.rootViewController?.present(mainVC, animated: false, completion: nil)
+                                    }
                                 }
                             }
                         }

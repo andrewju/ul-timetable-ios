@@ -26,7 +26,6 @@ class User: NSObject, NSCoding {
         self.userId = userId
         
         super.init()
-        
         if role.isEmpty || userId.isEmpty {
             return nil
         }
@@ -46,5 +45,4 @@ class User: NSObject, NSCoding {
             return nil
         }
     }
-    
 }

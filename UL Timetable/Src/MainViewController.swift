@@ -41,10 +41,10 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
     // MARK: Properties
     var userId: String = ""
     var userRole: String = ""
-    
+    var startDateStr: String = ""
+    var appStoreUpdate: Bool = false
     let eventStore = EKEventStore()
     let dateMakerFormatter = DateFormatter()
-    
     let userRoles = ["STUDENT", "STAFF"]
     
     var userRoleInput: UIPickerView!
@@ -61,12 +61,13 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
         if let config = AppDelegate.getRemoteConfig() {
             let actionType = config.getNumber(ULRemoteConfigurationKey.serviceNoticeType.rawValue)
             if actionType == 1 || actionType == 3 {
-                // Open URL
-                let actionLink = config.getString(ULRemoteConfigurationKey.serviceNoticeAction.rawValue)
+                var actionLink = config.getString(ULRemoteConfigurationKey.serviceNoticeAction.rawValue)
+                if actionType == 1 && appStoreUpdate {
+                    actionLink = config.getString(ULRemoteConfigurationKey.serviceIPAURL.rawValue)
+                }
                 guard let url = URL(string: actionLink!) else {
                     return //be safe
                 }
-                
                 if #available(iOS 10.0, *) {
                     UIApplication.shared.open(url, options: [:], completionHandler: nil)
                 } else {
@@ -89,9 +90,6 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
         
         // ToolBar
         let toolBar = UIToolbar()
-        toolBar.barStyle = .default
-        toolBar.isTranslucent = true
-        toolBar.tintColor = UIColor(red: 92/255, green: 216/255, blue: 255/255, alpha: 1)
         toolBar.sizeToFit()
         
         // Adding Button ToolBar
@@ -110,9 +108,7 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
         var request = URLRequest(url: requestURL)
         request.httpMethod = "GET"
         request.cachePolicy = NSURLRequest.CachePolicy.reloadIgnoringCacheData
-        
         let session = URLSession.shared
-        
         let task = session.dataTask(with: request as URLRequest) {(data, response, error) in
             
             guard let data = data, let _:URLResponse = response, error == nil else {
@@ -131,6 +127,7 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
             return
         }
         
+        startDateStr = config.semesterStartDate
         let type = (self.userRole == "STAFF" ? "true" : "false")
         let params = "/id/"+self.userId+"/staff/"+type+"/today/false"
         self.request(requestURL: URL.init(string: "\(config.serverHost)\(config.getServiceName(ULRemoteConfigurationKey.serviceTimeTable.rawValue, defaultValue: "id-timetable-v2.php"))\(params)")!, completion: { (data, _, error) in
@@ -182,9 +179,6 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
     
     // MARK: Method
     func addEventToCalendar(_ title: String, code: String, sequence: String, location: String, time: String, day: Int) -> Bool {
-        guard let config = AppDelegate.getRemoteConfig() else {
-            return false
-        }
         let event = EKEvent(eventStore: eventStore)
         
         // summary
@@ -196,8 +190,8 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
         event.calendar = eventStore.defaultCalendarForNewEvents
         
         dateMakerFormatter.dateFormat = "yyyyMMdd'T'HHmm"
-        var startDate: Date? = dateMakerFormatter.date(from: config.semesterStartDate+formatTime(time: time.components(separatedBy: "-")[0]))
-        var endDate: Date? = dateMakerFormatter.date(from: config.semesterStartDate+formatTime(time: time.components(separatedBy: "-")[1]))
+        var startDate: Date? = dateMakerFormatter.date(from: startDateStr+formatTime(time: time.components(separatedBy: "-")[0]))
+        var endDate: Date? = dateMakerFormatter.date(from: startDateStr+formatTime(time: time.components(separatedBy: "-")[1]))
         startDate = startDate?.addingTimeInterval(3600.0*24*(Double(day)-1))
         endDate = endDate?.addingTimeInterval(3600.0*24*(Double(day)-1))
         
@@ -233,12 +227,10 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
     }
     
     func cleanCalendar() -> Bool {
-        guard let config = AppDelegate.getRemoteConfig() else {
-            return false
-        }
+
         var result = false
         dateMakerFormatter.dateFormat = "yyyyMMdd'T"
-        let startDate: Date? = dateMakerFormatter.date(from: config.semesterStartDate)
+        let startDate: Date? = dateMakerFormatter.date(from: startDateStr)
         let endDate: Date? = startDate?.addingTimeInterval(3600*24*30*6) // 6 MONTH WINDOW
         let predicate = eventStore.predicateForEvents(withStart: startDate!,
                                                       end: endDate!,
@@ -302,6 +294,7 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
         }
     }
     
+    //swiftlint:disable:next function_body_length
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -324,19 +317,33 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
         userRolesTextField.text = userRole
         
         if let config = AppDelegate.getRemoteConfig() {
-            noticeLabel.text = config.getString(ULRemoteConfigurationKey.serviceNoticeMessage.rawValue)
             
             let actionType = config.getNumber(ULRemoteConfigurationKey.serviceNoticeType.rawValue)
             if actionType == 1 {
                 // Open URL
                 addBarButton.isEnabled = true
-                noticeLabel.backgroundColor = UIColor.init(red: 57/255.0, green: 156/255.0, blue: 230/255.0, alpha: 1.0)
+                noticeLabel.backgroundColor = UIColor.init(red: 19/255.0, green: 104/255.0, blue: 250/255.0, alpha: 1.0)
                 
                 userRolesTableViewCell.isUserInteractionEnabled = true
                 userIDTableViewCell.isUserInteractionEnabled = true
                 
+                // check app version with App Store version
+                // fetch system version from .plist file
+                let path = Bundle.main.path(forResource: "Info", ofType: "plist")
+                let resultDic = NSMutableDictionary(contentsOfFile: path!)! as NSMutableDictionary
+                if let sysVersion = resultDic.object(forKey: "systemVersion") as? Int {
+                    if sysVersion < (config.getNumber(ULRemoteConfigurationKey.appStoreVersion.rawValue)?.intValue)! {
+                        appStoreUpdate = true
+                        noticeLabel.text = "Click to update your app to latest version"
+                    } else {
+                        noticeLabel.text = config.getString(ULRemoteConfigurationKey.serviceNoticeMessage.rawValue)
+                    }
+                }
+                
             } else if actionType == 2 || actionType == 3 {
                 // Disable Button
+                noticeLabel.text = config.getString(ULRemoteConfigurationKey.serviceNoticeMessage.rawValue)
+
                 addBarButton.isEnabled = false
                 noticeLabel.backgroundColor = UIColor.gray
                 
