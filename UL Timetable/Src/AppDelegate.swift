@@ -12,7 +12,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
     let outOfDateMessage = "Your app version is out-of-date!\nPlease update to the latest version from App Store!"
-    let errorMsg = "Please try again later."
+    let errorMsg = "Please make sure there is internet connection and try again!"
     
     var remoteConfig: ULConfiguration?
     

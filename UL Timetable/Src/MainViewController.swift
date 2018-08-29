@@ -6,6 +6,7 @@
 
 import UIKit
 import EventKit
+import StoreKit
 class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
@@ -163,11 +164,18 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
                 } catch {
                     print("error serializing JSON: \(error)")
                     DispatchQueue.main.async {
-                        self.displayAlert(0)
+                        self.displayAlert(5)
                         self.saveUserInfo()
                         self.statusTableViewCell.textLabel?.text = self.userRole+": "+self.userId
                         self.addBarButton.isEnabled = true
                     }
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.displayAlert(0)
+                    self.saveUserInfo()
+                    self.statusTableViewCell.textLabel?.text = self.userRole+": "+self.userId
+                    self.addBarButton.isEnabled = true
                 }
             }
         })
@@ -387,16 +395,42 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
         } else if type == 2 {
             typeDescription = "Your timetable is added."
         } else if type == 3 {
-            typeDescription = "Access to the event store is denied."
+            typeDescription = "Access to the event store is denied. Please go to Settings -> UL Timetable and turn on the Calendars access."
         } else if type == 4 {
-            typeDescription = "Access to the event store is restricted."
+            typeDescription = "Access to the event store is restricted. Please go to Settings -> UL Timetable and turn on the Calendars access."
         } else {
             typeDescription = "Unknown error happened."
         }
-        
-        self.progressView.stopAnimating()
-        let alertController = UIAlertController(title: "Message", message: typeDescription, preferredStyle: .alert)
-        let OKAction = UIAlertAction(title: "OK", style: .default) { (_) in }
+        DispatchQueue.main.async {
+            self.progressView.stopAnimating()
+            self.addBarButton.isEnabled = true
+
+        }
+        let alertController = UIAlertController(title: typeDescription, message: nil, preferredStyle: .alert)
+        let OKAction = UIAlertAction(title: "OK", style: .default) { (_) in
+            if type == 1 || type == 2 {
+                SKStoreReviewController.requestReview()
+            }
+            
+            if type == 5 {
+                let alertController = UIAlertController(title: "Report issue?", message: "This will help us in addressing the issue you have, thanks!", preferredStyle: .alert)
+                let okAction = UIAlertAction(title: "OK", style: .default) { (_) in
+                    guard let url = URL(string: "mailto:ul-timetable-app@outlook.com?subject=Bug"+self.userId) else {
+                        return //be safe
+                    }
+                    if #available(iOS 10.0, *) {
+                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                    } else {
+                        UIApplication.shared.openURL(url)
+                    }
+                }
+                let cancelAction = UIAlertAction(title: "Not Now", style: .cancel) {(_) in }
+                
+                alertController.addAction(okAction)
+                alertController.addAction(cancelAction)
+                self.present(alertController, animated: true) {}
+            }
+        }
         alertController.addAction(OKAction)
         self.present(alertController, animated: true) {}
     }
