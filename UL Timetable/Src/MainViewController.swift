@@ -44,6 +44,7 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
     var userRole: String = ""
     var startDateStr: String = ""
     var appStoreUpdate: Bool = false
+    var errorHappened: Bool = false
     let eventStore = EKEventStore()
     let dateMakerFormatter = DateFormatter()
     let userRoles = ["STUDENT", "STAFF"]
@@ -122,7 +123,7 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
         
         task.resume()
     }
-    
+    //swiftlint:disable:next function_body_length
     func requestTimetable() {
         guard let config = AppDelegate.getRemoteConfig() else {
             return
@@ -146,17 +147,27 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
                                     let eventDay = result["day"] as? Int {
                                     for item in eventSequence.components(separatedBy: ",") {
                                         DispatchQueue.main.async {
-                                            _ = self.addEventToCalendar(eventTitle, code: eventCode, sequence: item, location: eventLocation, time: eventTime, day: eventDay)
+                                            self.errorHappened = !self.addEventToCalendar(eventTitle, code: eventCode, sequence: item, location: eventLocation, time: eventTime, day: eventDay)
+                                            if self.errorHappened {
+                                                return
+                                            }
+                                            
                                         }
                                     }
                                 }
                             }
                             
                             DispatchQueue.main.async {
-                                self.displayAlert(2)
-                                self.saveUserInfo()
-                                self.statusTableViewCell.textLabel?.text = self.userRole+": "+self.userId
-                                self.addBarButton.isEnabled = true
+                                if !self.errorHappened {
+                                    self.displayAlert(2)
+                                    self.saveUserInfo()
+                                    self.statusTableViewCell.textLabel?.text = self.userRole+": "+self.userId
+                                    self.addBarButton.isEnabled = true
+                                } else {
+                                    _ = self.cleanCalendar()
+                                    self.displayAlert(5)
+                                }
+
                             }
                         }
                     }
@@ -198,39 +209,42 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
         event.calendar = eventStore.defaultCalendarForNewEvents
         
         dateMakerFormatter.dateFormat = "yyyyMMdd'T'HHmm"
-        var startDate: Date? = dateMakerFormatter.date(from: startDateStr+formatTime(time: time.components(separatedBy: "-")[0]))
-        var endDate: Date? = dateMakerFormatter.date(from: startDateStr+formatTime(time: time.components(separatedBy: "-")[1]))
-        startDate = startDate?.addingTimeInterval(3600.0*24*(Double(day)-1))
-        endDate = endDate?.addingTimeInterval(3600.0*24*(Double(day)-1))
         
-        // sequence: 1-8,10-13
-        // sequence: 2, 4-6
-        // sequence: 2-5,8,11
-        if sequence.contains("-") {
-            // eventTime + eventDuration
-            let start = Int(sequence.components(separatedBy: "-")[0])!
-            let end = Int(sequence.components(separatedBy: "-")[1])!
+        if let startTime = dateMakerFormatter.date(from: startDateStr+formatTime(time: time.components(separatedBy: "-")[0])),
+            let endTime = dateMakerFormatter.date(from: startDateStr+formatTime(time: time.components(separatedBy: "-")[1])) {
+            let startDate = startTime.addingTimeInterval(3600.0*24*(Double(day)-1))
+            let endDate = endTime.addingTimeInterval(3600.0*24*(Double(day)-1))
             
-            event.startDate = (startDate?.addingTimeInterval(3600.0*24*7*Double(start-1)))!
-            event.endDate = (endDate?.addingTimeInterval(3600.0*24*7*Double(start-1)))!
-            event.addAlarm(EKAlarm.init(relativeOffset: -15*60))
+            // sequence: 1-8,10-13
+            // sequence: 2, 4-6
+            // sequence: 2-5,8,11
+            if sequence.contains("-") {
+                // eventTime + eventDuration
+                let start = Int(sequence.components(separatedBy: "-")[0])!
+                let end = Int(sequence.components(separatedBy: "-")[1])!
+                
+                event.startDate = startDate.addingTimeInterval(3600.0*24*7*Double(start-1))
+                event.endDate = endDate.addingTimeInterval(3600.0*24*7*Double(start-1))
+                event.addAlarm(EKAlarm.init(relativeOffset: -15*60))
+                
+                let recurringEnd = EKRecurrenceEnd(occurrenceCount: end-start+1)
+                let recurringRule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: recurringEnd)
+                event.recurrenceRules = [recurringRule]
+                
+            } else {
+                // eventTime + eventDuration
+                event.startDate = startDate.addingTimeInterval(3600.0*24*7*(Double(sequence)!-1))
+                event.endDate = endDate.addingTimeInterval(3600.0*24*7*(Double(sequence)!-1))
+            }
             
-            let recurringEnd = EKRecurrenceEnd(occurrenceCount: end-start+1)
-            let recurringRule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: recurringEnd)
-            event.recurrenceRules = [recurringRule]
-            
-        } else {
-            // eventTime + eventDuration
-            event.startDate = (startDate?.addingTimeInterval(3600.0*24*7*(Double(sequence)!-1)))!
-            event.endDate = (endDate?.addingTimeInterval(3600.0*24*7*(Double(sequence)!-1)))!
+            do {
+                try eventStore.save(event, span: .futureEvents)
+                return true
+            } catch let error as NSError {
+                print("\(error)")
+            }
         }
-        
-        do {
-            try eventStore.save(event, span: .futureEvents)
-            return true
-        } catch let error as NSError {
-            print("\(error)")
-        }
+
         return false
     }
     
@@ -238,39 +252,45 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
 
         var result = false
         dateMakerFormatter.dateFormat = "yyyyMMdd'T"
-        let startDate: Date? = dateMakerFormatter.date(from: startDateStr)
-        let endDate: Date? = startDate?.addingTimeInterval(3600*24*30*6) // 6 MONTH WINDOW
-        let predicate = eventStore.predicateForEvents(withStart: startDate!,
-                                                      end: endDate!,
-                                                      calendars: [eventStore.defaultCalendarForNewEvents!])
-        
-        /* Get all the events that match the parameters */
-        let events = eventStore.events(matching: predicate)
-            as [EKEvent]
-        
-        if events.count > 0 {
-            /* Delete them all */
-            for event in events {
-                if event.title.contains("LEC")||event.title.contains("TUT")||event.title.contains("LAB") {
+        if let startDate = dateMakerFormatter.date(from: startDateStr) {
+            // 6 MONTH WINDOW
+            let endDate = startDate.addingTimeInterval(3600*24*30*6)
+            
+            if let calList = eventStore.defaultCalendarForNewEvents {
+                let predicate = eventStore.predicateForEvents(withStart: startDate,
+                                                              end: endDate,
+                                                              calendars: [calList])
+                
+                /* Get all the events that match the parameters */
+                let events = eventStore.events(matching: predicate)
+                    
+                    as [EKEvent]
+                
+                if events.count > 0 {
+                    /* Delete them all */
+                    for event in events {
+                        if event.title.contains("LEC")||event.title.contains("TUT")||event.title.contains("LAB") {
+                            
+                            do {
+                                try eventStore.remove(event, span: .futureEvents, commit: false)
+                            } catch let error as NSError {
+                                print("Failed to remove \(event) with error = \(error)")
+                            }
+                        }
+                    }
                     
                     do {
-                        try eventStore.remove(event, span: .futureEvents, commit: false)
+                        try eventStore.commit()
+                        print("Successfully committed")
+                        result = true
                     } catch let error as NSError {
-                        print("Failed to remove \(event) with error = \(error)")
+                        print("Failed to commit the event store with error = \(error)")
                     }
+                    
+                } else {
+                    print("No events matched your input.")
                 }
             }
-            
-            do {
-                try eventStore.commit()
-                print("Successfully committed")
-                result = true
-            } catch let error as NSError {
-                print("Failed to commit the event store with error = \(error)")
-            }
-            
-        } else {
-            print("No events matched your input.")
         }
         return result
     }
@@ -300,6 +320,7 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
         case .restricted:
             self.displayAlert(4)
         }
+        self.errorHappened = false
     }
     
     //swiftlint:disable:next function_body_length
