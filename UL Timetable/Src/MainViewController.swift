@@ -208,10 +208,12 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
         event.notes = title
         event.calendar = eventStore.defaultCalendarForNewEvents
         
+        dateMakerFormatter.timeZone = TimeZone.current
+        dateMakerFormatter.locale = Locale(identifier: "en_US_POSIX")
         dateMakerFormatter.dateFormat = "yyyyMMdd'T'HHmm"
         
-        if let startTime = dateMakerFormatter.date(from: startDateStr+formatTime(time: time.components(separatedBy: "-")[0])),
-            let endTime = dateMakerFormatter.date(from: startDateStr+formatTime(time: time.components(separatedBy: "-")[1])) {
+        if let startTime = dateMakerFormatter.date(from: startDateStr+formatTime(time: time.components(separatedBy: "-")[0].trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines))),
+            let endTime = dateMakerFormatter.date(from: startDateStr+formatTime(time: time.components(separatedBy: "-")[1].trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines))) {
             let startDate = startTime.addingTimeInterval(3600.0*24*(Double(day)-1))
             let endDate = endTime.addingTimeInterval(3600.0*24*(Double(day)-1))
             
