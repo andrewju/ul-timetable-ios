@@ -6,8 +6,9 @@
 
 import UIKit
 import EventKit
+import MessageUI
 import StoreKit
-class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
+class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource, MFMailComposeViewControllerDelegate {
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
@@ -36,7 +37,7 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
     @objc func cancelClick() {
         userRolesTextField.resignFirstResponder()
         self.userRolesTableViewCell.isSelected = false
-
+        
     }
     
     // MARK: Properties
@@ -45,6 +46,7 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
     var startDateStr: String = ""
     var appStoreUpdate: Bool = false
     var errorHappened: Bool = false
+    var errorCode: Int = 0
     let eventStore = EKEventStore()
     let dateMakerFormatter = DateFormatter()
     let userRoles = ["STUDENT", "STAFF"]
@@ -58,6 +60,7 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
     @IBOutlet weak var userID: UITextField!
     @IBOutlet weak var userRolesTextField: UITextField!
     @IBOutlet weak var noticeLabel: UILabel!
+    
     @IBAction func tappedNoticeLabel(_ sender: Any) {
         
         if let config = AppDelegate.getRemoteConfig() {
@@ -79,6 +82,44 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
         }
     }
     
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        controller.dismiss(animated: true)
+    }
+    
+    func getMailBody() -> String {
+        let path = Bundle.main.path(forResource: "Info", ofType: "plist")
+        let resultDic = NSMutableDictionary(contentsOfFile: path!)! as NSMutableDictionary
+        if let sysVersion = resultDic.object(forKey: "systemVersion") as? Int {
+            return
+                "<p>Error Details</p>" +
+                "<ul><li>ID: \(userId)</li>" +
+                "<li>App version: \(sysVersion)</li>" +
+                "<li>iOS Version: \(UIDevice.current.systemVersion)</li>" +
+                "<li>Error code: \(errorCode) </li></ul>"
+        } else {
+            return
+                "<p>Error Details</p>" +
+                "<ul><li>ID: \(userId)</li>" +
+                "<li>iOS version: \(UIDevice.current.systemVersion)</li>" +
+                "<li>Error code: \(errorCode) </li></ul>"
+            
+        }
+    }
+    
+    func sendEmail() {
+        if MFMailComposeViewController.canSendMail() {
+            let mail = MFMailComposeViewController()
+            
+            mail.mailComposeDelegate = self
+            mail.setToRecipients(["ul-timetable-app@outlook.com"])
+            mail.setSubject("Error Report")
+            mail.setMessageBody(getMailBody(), isHTML: true)
+            
+            present(mail, animated: true)
+        } else {
+            // show failure alert
+        }
+    }
     func tappedUserRoles() {
         // UIPickerView
         self.userRoleInput = UIPickerView(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: 216))
@@ -109,6 +150,7 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
     func request(requestURL: URL, completion: @escaping (Data?, URLResponse?, Error?) -> Swift.Void) {
         var request = URLRequest(url: requestURL)
         request.httpMethod = "GET"
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.cachePolicy = NSURLRequest.CachePolicy.reloadIgnoringCacheData
         let session = URLSession.shared
         let task = session.dataTask(with: request as URLRequest) {(data, response, error) in
@@ -151,7 +193,6 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
                                             if self.errorHappened {
                                                 return
                                             }
-                                            
                                         }
                                     }
                                 }
@@ -167,7 +208,7 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
                                     _ = self.cleanCalendar()
                                     self.displayAlert(5)
                                 }
-
+                                
                             }
                         }
                     }
@@ -175,7 +216,8 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
                 } catch {
                     print("error serializing JSON: \(error)")
                     DispatchQueue.main.async {
-                        self.displayAlert(5)
+                        self.errorCode = -10 // special code
+                        self.displayAlert(6)
                         self.saveUserInfo()
                         self.statusTableViewCell.textLabel?.text = self.userRole+": "+self.userId
                         self.addBarButton.isEnabled = true
@@ -193,6 +235,7 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
     }
     
     func formatTime(time: String) -> String {
+        // The length constraint is added in the addEventToCalendar function
         return time.components(separatedBy: ":")[0]+time.components(separatedBy: ":")[1]
     }
     
@@ -212,8 +255,19 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
         dateMakerFormatter.locale = Locale(identifier: "en_US_POSIX")
         dateMakerFormatter.dateFormat = "yyyyMMdd'T'HHmm"
         
-        if let startTime = dateMakerFormatter.date(from: startDateStr+formatTime(time: time.components(separatedBy: "-")[0].trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines))),
-            let endTime = dateMakerFormatter.date(from: startDateStr+formatTime(time: time.components(separatedBy: "-")[1].trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines))) {
+        if time.components(separatedBy: "-").count != 2 {
+            self.errorCode = -1
+            return false
+        }
+        
+        var parts = time.components(separatedBy: "-")
+        if parts[0].components(separatedBy: ":").count != 2 || parts[1].components(separatedBy: ":").count != 2 {
+            self.errorCode = -2
+            return false
+        }
+        
+        if let startTime = dateMakerFormatter.date(from: startDateStr+formatTime(time: parts[0].trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines))),
+            let endTime = dateMakerFormatter.date(from: startDateStr+formatTime(time: parts[1].trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines))) {
             let startDate = startTime.addingTimeInterval(3600.0*24*(Double(day)-1))
             let endDate = endTime.addingTimeInterval(3600.0*24*(Double(day)-1))
             
@@ -244,14 +298,17 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
                 return true
             } catch let error as NSError {
                 print("\(error)")
+                self.errorCode = -4
             }
+        } else {
+            self.errorCode = -3
         }
-
+        
         return false
     }
     
     func cleanCalendar() -> Bool {
-
+        
         var result = false
         dateMakerFormatter.dateFormat = "yyyyMMdd'T"
         if let startDate = dateMakerFormatter.date(from: startDateStr) {
@@ -304,6 +361,8 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
         // 3 -> "Access to the event store is denied."
         // 4 -> "Access to the event store is restricted."
         
+        self.errorHappened = false
+        
         dateMakerFormatter.dateFormat = "yyyyMMdd'T'HHmm"
         switch EKEventStore.authorizationStatus(for: .event) {
             
@@ -322,7 +381,6 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
         case .restricted:
             self.displayAlert(4)
         }
-        self.errorHappened = false
     }
     
     //swiftlint:disable:next function_body_length
@@ -374,13 +432,13 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
             } else if actionType == 2 || actionType == 3 {
                 // Disable Button
                 noticeLabel.text = config.getString(ULRemoteConfigurationKey.serviceNoticeMessage.rawValue)
-
+                
                 addBarButton.isEnabled = false
                 noticeLabel.backgroundColor = UIColor.gray
                 
                 userRolesTableViewCell.isUserInteractionEnabled = false
                 userIDTableViewCell.isUserInteractionEnabled = false
-
+                
             }
         }
         
@@ -402,55 +460,50 @@ class HomeTableViewController: UITableViewController, UITextFieldDelegate, UIPic
         addTimetable()
     }
     
-    // MARK: Functions
-    
     func displayAlert(_ type: Int) {
-        // 0 -> Error happened
-        // 1 -> Up to date
-        // 2 -> Added successfully
-        // 3 -> "Access to the event store is denied."
-        // 4 -> "Access to the event store is restricted."
         var typeDescription: String?
-        if type == 0 {
+        switch type {
+        case 0:
             typeDescription = "Please make sure there is internet connection and try again!"
-        } else if type == 1 {
+        case 1:
             typeDescription = "Your timetable is already added."
-        } else if type == 2 {
+        case 2:
             typeDescription = "Your timetable is added."
-        } else if type == 3 {
+        case 3:
             typeDescription = "Access to the event store is denied. Please go to Settings -> UL Timetable and turn on the Calendars access."
-        } else if type == 4 {
+        case 4:
             typeDescription = "Access to the event store is restricted. Please go to Settings -> UL Timetable and turn on the Calendars access."
-        } else {
-            typeDescription = "Unknown error happened."
+        case 5:
+            typeDescription = "Something is wrong, sorry it happened."
+        case 6:
+            typeDescription = "Something is wrong, sorry it happened."
+        default:
+            typeDescription = "Unknown error happened"
         }
+        
         DispatchQueue.main.async {
             self.progressView.stopAnimating()
             self.addBarButton.isEnabled = true
-
         }
+        
         let alertController = UIAlertController(title: typeDescription, message: nil, preferredStyle: .alert)
         let OKAction = UIAlertAction(title: "OK", style: .default) { (_) in
             if type == 1 || type == 2 {
                 SKStoreReviewController.requestReview()
             }
             
-            if type == 5 {
-                let alertController = UIAlertController(title: "Report issue?", message: "This will help us in addressing the issue you have, thanks!", preferredStyle: .alert)
+            if type >= 5 {
+                let alertController = UIAlertController(title: "Report Issue", message: "This will help us in addressing the issue you have, thanks!", preferredStyle: .alert)
                 let okAction = UIAlertAction(title: "OK", style: .default) { (_) in
-                    guard let url = URL(string: "mailto:ul-timetable-app@outlook.com?subject=Bug"+self.userId) else {
-                        return //be safe
-                    }
-                    if #available(iOS 10.0, *) {
-                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                    } else {
-                        UIApplication.shared.openURL(url)
-                    }
+                    self.sendEmail()
                 }
-                let cancelAction = UIAlertAction(title: "Not Now", style: .cancel) {(_) in }
+                let cancelAction = UIAlertAction(title: "Not Now", style: .default) {(_) in }
                 
                 alertController.addAction(okAction)
                 alertController.addAction(cancelAction)
+                
+                alertController.preferredAction = okAction
+                
                 self.present(alertController, animated: true) {}
             }
         }

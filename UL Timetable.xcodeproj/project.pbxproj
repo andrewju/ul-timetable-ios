@@ -402,7 +402,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = KJTFH4D46R;
 				INFOPLIST_FILE = "UL Timetable/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "ie.ul.andrew.UL-Timetable-App-iOS";
 				PRODUCT_NAME = "UL Timetable";
@@ -424,7 +424,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = KJTFH4D46R;
 				INFOPLIST_FILE = "UL Timetable/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "ie.ul.andrew.UL-Timetable-App-iOS";
 				PRODUCT_NAME = "UL Timetable";

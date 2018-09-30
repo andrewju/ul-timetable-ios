@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
     <device id="retina5_5" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.14"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -21,62 +21,25 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="© 2018 Andrew Design." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TXA-wn-bAa">
-                                <rect key="frame" x="117.66666666666669" y="695" width="179" height="21"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="21" id="US9-No-nZu"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="17"/>
-                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ulsu-logo" translatesAutoresizingMaskIntoConstraints="NO" id="tW1-5D-x9y">
-                                <rect key="frame" x="117.66666666666669" y="563" width="179" height="60"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="60" id="ugx-wG-mLY"/>
-                                </constraints>
-                            </imageView>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ulpsu-logo" translatesAutoresizingMaskIntoConstraints="NO" id="FvU-YP-XI1">
-                                <rect key="frame" x="156.66666666666666" y="631" width="99.999999999999972" height="48"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="48" id="x5L-Nf-8xE"/>
-                                </constraints>
-                            </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Endorsed by" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="R0X-xc-zj8">
-                                <rect key="frame" x="159.33333333333334" y="279" width="96" height="21"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="21" id="dLJ-sA-9WY"/>
-                                </constraints>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="© 2018 Andrew Design" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TXA-wn-bAa">
+                                <rect key="frame" x="118.33333333333333" y="695" width="177.33333333333337" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="itd-logo" translatesAutoresizingMaskIntoConstraints="NO" id="9ya-Jq-G7G">
-                                <rect key="frame" x="96" y="347" width="221" height="109"/>
-                            </imageView>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ctl-logo" translatesAutoresizingMaskIntoConstraints="NO" id="n37-A8-cL9">
-                                <rect key="frame" x="97" y="464" width="220" height="99"/>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="rQ3-To-liA">
+                                <rect key="frame" x="182" y="343" width="50" height="50"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="99" id="1Cf-Ii-gNV"/>
+                                    <constraint firstAttribute="width" constant="50" id="hck-t1-PYK"/>
+                                    <constraint firstAttribute="height" constant="50" id="w4n-lc-8Wi"/>
                                 </constraints>
-                            </imageView>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="9ya-Jq-G7G" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leadingMargin" constant="76" id="2H5-O6-01M"/>
-                            <constraint firstItem="9ya-Jq-G7G" firstAttribute="centerX" secondItem="R0X-xc-zj8" secondAttribute="centerX" id="Od5-VE-z26"/>
-                            <constraint firstItem="tW1-5D-x9y" firstAttribute="top" secondItem="n37-A8-cL9" secondAttribute="bottom" id="VMq-3A-fNn"/>
-                            <constraint firstItem="n37-A8-cL9" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leadingMargin" constant="77" id="aMz-wt-0EI"/>
-                            <constraint firstItem="n37-A8-cL9" firstAttribute="centerX" secondItem="R0X-xc-zj8" secondAttribute="centerX" id="bmW-uh-Gkr"/>
-                            <constraint firstItem="n37-A8-cL9" firstAttribute="top" secondItem="9ya-Jq-G7G" secondAttribute="bottom" constant="8" symbolic="YES" id="dq2-NG-nwc"/>
-                            <constraint firstItem="n37-A8-cL9" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="eDg-Zq-FcT"/>
-                            <constraint firstItem="FvU-YP-XI1" firstAttribute="centerX" secondItem="R0X-xc-zj8" secondAttribute="centerX" id="fiy-XO-dnw"/>
-                            <constraint firstItem="TXA-wn-bAa" firstAttribute="centerX" secondItem="R0X-xc-zj8" secondAttribute="centerX" id="hNn-84-Lh9"/>
-                            <constraint firstItem="tW1-5D-x9y" firstAttribute="trailing" secondItem="TXA-wn-bAa" secondAttribute="trailing" id="j5P-u7-Pzc"/>
-                            <constraint firstItem="FvU-YP-XI1" firstAttribute="top" secondItem="tW1-5D-x9y" secondAttribute="bottom" constant="8" symbolic="YES" id="omF-j9-LY6"/>
-                            <constraint firstItem="tW1-5D-x9y" firstAttribute="centerX" secondItem="R0X-xc-zj8" secondAttribute="centerX" id="qHo-Xl-P8a"/>
-                            <constraint firstItem="9ya-Jq-G7G" firstAttribute="top" secondItem="R0X-xc-zj8" secondAttribute="bottom" constant="47" id="wl0-VS-wb7"/>
-                            <constraint firstItem="TXA-wn-bAa" firstAttribute="top" secondItem="FvU-YP-XI1" secondAttribute="bottom" constant="16" id="z8e-F7-Uvh"/>
+                            <constraint firstItem="rQ3-To-liA" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="5LW-6E-Qls"/>
+                            <constraint firstItem="rQ3-To-liA" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="Ra4-4X-qM5"/>
+                            <constraint firstItem="TXA-wn-bAa" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="oka-VR-LQt"/>
                             <constraint firstAttribute="bottom" secondItem="TXA-wn-bAa" secondAttribute="bottom" constant="20" symbolic="YES" id="zXD-eP-Ce8"/>
                         </constraints>
                     </view>
@@ -86,10 +49,4 @@
             <point key="canvasLocation" x="52" y="374.66266866566718"/>
         </scene>
     </scenes>
-    <resources>
-        <image name="ctl-logo" width="232" height="183"/>
-        <image name="itd-logo" width="169" height="109"/>
-        <image name="ulpsu-logo" width="100" height="48"/>
-        <image name="ulsu-logo" width="175" height="60"/>
-    </resources>
 </document>
